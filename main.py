@@ -273,138 +273,128 @@ plt.show();
 # #=============================================================================
 # #=============================================================================
 # #para comprobar tiempo de ejecucion del programa
-# start_time = time.time()
+start_time = time.time()
 
 # #PAso 1==================================
 # #Ajuste de los datos a power-law y obtener Gamma, KMIN y D
-# Gamma_sample=Gamma
-# KMIN_sample=KMIN
-# D_sample=np.min(D)
-# hurtwitz_f_sample=sp.zeta(Gamma_sample,KMIN_sample[0])
+Gamma_sample=Gamma
+KMIN_sample=KMIN
+D_sample=np.min(D)
+hurtwitz_f_sample=sp.zeta(Gamma_sample,KMIN_sample[0])
 
 
 # #PAso 2====================================
-# # Generar Lo=2500 conjuntos de datos provenientes de una ley de potencia con los mismos 
-# # parámetros del PAso 1. Cada uno de estos conjuntos tienen que ajustarse a una ley de 
-# # potencia y respecto a este ajuste calcular D
-
-# Lo=2500
-# D_opt=np.zeros(Lo) 
-# Gamma_est2=np.zeros(Lo)
-
-# # Tamaño de la muestra de cada conjunto tam_muestra
-# tam_muestra=DegreeValues.shape[0]
-# #cantidad de valores mayores que KMIN
-# n_tail=DegreeValues[np.where(DegreeValues >= KMIN_sample)].shape[0]
-# #probabilidad de generar power-law
-# p_power_law = n_tail/tam_muestra
-# #distribucion bajo KMIN contiene al cero en la posicion 0
-# PMF_bajo_KMIN = hist_lin[0:KMIN_sample[0]]/np.sum(hist_lin[0:KMIN_sample[0]])
-# dist_bajo_KMIN = np.cumsum(PMF_bajo_KMIN, axis=0)
-
-# for jj in range(0,Lo):
-#     #Generar un conjunto
-#     # los datos se generan de acuerdo a Clausset 2009
-
-#     #inicializar muestra generada
-#     muestra_i=np.zeros(tam_muestra) 
-    
-#     for ii in range(0,tam_muestra):
-#         if np.random.uniform(0,1) > p_power_law:
-#             #dist no power-law
-#             p_grado=np.random.uniform(0,1)
-#             aux=0
-#             flag=0
-#             while flag == 0: # recorro la CDF
-#                 if p_grado < dist_bajo_KMIN [aux]:
-#                     muestra_i[ii]=aux
-#                     flag=1
-#                 else:
-#                     aux+=1
-#         else:
-#             #dist power-law
-#             p_grado=np.random.uniform(0,1)
-#             aux=KMIN_sample[0]
-#             flag=0
-#             p=np.power(KMIN_sample,-Gamma_sample)/hurtwitz_f_sample
-#             F=p
-#             while flag == 0: # recorro la CDF
-#                 if p_grado < F:
-#                     muestra_i[ii]=aux
-#                     flag=1
-#                 else:                
-#                     p = p * np.power(1 + 1/aux,-Gamma_sample)
-#                     F+=p
-#                     aux+=1
-    
-#     # ajustar el conjunto muestra_i a una ley de potencia
-#     k_max=np.max(muestra_i)
-#     posib_kmin=np.arange(np.min(muestra_i),100)
-#     D=np.zeros(posib_kmin.shape[0])
-#     muestra_i = np.array(muestra_i)#convertir de lista a array para aplicar lo de abajo
-    
-#     #histograma lineal
-#     bins_lineal= np.arange(k_max + 1) - 0.5;
-#     # Realiza el conteo con la función histogram de Numpy
-#     [hist_lin, Bins] = np.histogram(muestra_i, bins_lineal)
-#     # Calcula la frecuencia de ocurrencia de cada grado
-#     pk = hist_lin / np.sum(hist_lin)
-    
-    
-#     for ii in range(0,posib_kmin.shape[0]):
-    
-#         k_min=posib_kmin[ii]
-    
-#         muestra_i_min = muestra_i[np.where(muestra_i >= k_min)]
-            
-#         N=muestra_i_min.shape[0]
-        
-#         Gamma = 1 + N / np.sum(np.log(muestra_i_min/(k_min-1/2)))
-        
-#         #Del ajuste anterior se utiliza la pendiente 'Gamma' y el otro parametro se ajusta   
-#         #calculo de estadístico de Kolmogorov-Smirnov
-#         #CDFs
-#         #CDF Modelo (solo para valores mayores de k_min) 
-#         puntos_ajuste = np.arange(k_min, k_max)
-#         hurtwitz_f=sp.zeta(Gamma,k_min)
-#         pk_ajust2=np.power(puntos_ajuste,-Gamma)/hurtwitz_f
-#         CDF_ajuste=np.cumsum(pk_ajust2, axis=0)
-        
-#         #CDF datos (solo para observaciones mayores de k_min)
-#         hist_lin2=hist_lin[int(k_min):]
-#         pk_datos=hist_lin2/np.sum(hist_lin2)
-#         CDF_datos=np.cumsum(pk_datos, axis=0)
-            
-#         D[ii]=np.max(np.absolute(CDF_ajuste-CDF_datos))
-        
-#     #almacenar valor de D_min=======
-#     D_opt[jj]=np.min(D)
-    
-#     #valores ajustados=======
-#     KMIN=posib_kmin[np.where(D == np.min(D))] 
-
-#     muestra_i_min = muestra_i[np.where(muestra_i >= KMIN)]
-
-#     N=muestra_i_min.shape[0]
-
-#     Gamma = 1 + N / np.sum(np.log(muestra_i_min/(KMIN-1/2)))
-    
-#     Gamma_est2[jj]=Gamma
-#     print("iteracion=" + str(jj))# + " y D=" + str(np.min(D)));
-
-# total_mayores= D_opt[np.where(D_opt >= D_sample)].shape[0]        
-# p_value=total_mayores / Lo
-
-# print("---exec time: %s seconds ---" % (time.time() - start_time))
-# print("---p_value=%s ---" % p_value)
-
-# #histograma de D
-# plt.figure()
-# plt.hist(D_opt)
-# plt.title("Distribución estadistico KS");
-# plt.ylabel("p(D)");
-# plt.xlabel("D");
-# plt.show();
+# Generar Lo=2500 conjuntos de datos provenientes de una ley de potencia con los mismos 
+# parámetros del PAso 1. Cada uno de estos conjuntos tienen que ajustarse a una ley de 
+# potencia y respecto a este ajuste calcular D
+Lo=2500
+D_opt=np.zeros(Lo) 
+Gamma_est2=np.zeros(Lo)
+# Tamaño de la muestra de cada conjunto tam_muestra
+tam_muestra=DegreeValues.shape[0]
+#cantidad de valores mayores que KMIN
+n_tail=DegreeValues[np.where(DegreeValues >= KMIN_sample)].shape[0]
+#probabilidad de generar power-law
+p_power_law = n_tail/tam_muestra
+#distribucion bajo KMIN contiene al cero en la posicion 0
+PMF_bajo_KMIN = hist_lin[0:KMIN_sample[0]]/np.sum(hist_lin[0:KMIN_sample[0]])
+dist_bajo_KMIN = np.cumsum(PMF_bajo_KMIN, axis=0)
+for jj in range(0,Lo):
+    #Generar un conjunto
+    # los datos se generan de acuerdo a Clausset 2009
+    #inicializar muestra generada
+    muestra_i=np.zeros(tam_muestra) 
+  
+    for ii in range(0,tam_muestra):
+        if np.random.uniform(0,1) > p_power_law:
+            #dist no power-law
+            p_grado=np.random.uniform(0,1)
+            aux=0
+            flag=0
+            while flag == 0: # recorro la CDF
+                if p_grado < dist_bajo_KMIN [aux]:
+                    muestra_i[ii]=aux
+                    flag=1
+                else:
+                    aux+=1
+        else:
+            #dist power-law
+            p_grado=np.random.uniform(0,1)
+            aux=KMIN_sample[0]
+            flag=0
+            p=np.power(KMIN_sample,-Gamma_sample)/hurtwitz_f_sample
+            F=p
+            while flag == 0: # recorro la CDF
+                if p_grado < F:
+                    muestra_i[ii]=aux
+                    flag=1
+                else:                
+                    p = p * np.power(1 + 1/aux,-Gamma_sample)
+                    F+=p
+                    aux+=1
+  
+    # ajustar el conjunto muestra_i a una ley de potencia
+    k_max=np.max(muestra_i)
+    posib_kmin=np.arange(np.min(muestra_i),100)
+    D=np.zeros(posib_kmin.shape[0])
+    muestra_i = np.array(muestra_i)#convertir de lista a array para aplicar lo de abajo
+  
+    #histograma lineal
+    bins_lineal= np.arange(k_max + 1) - 0.5;
+    # Realiza el conteo con la función histogram de Numpy
+    [hist_lin, Bins] = np.histogram(muestra_i, bins_lineal)
+    # Calcula la frecuencia de ocurrencia de cada grado
+    pk = hist_lin / np.sum(hist_lin)
+  
+    print(posib_kmin.shape[0])
+    for ii in range(0,posib_kmin.shape[0]):
+  
+        k_min=posib_kmin[ii]
+  
+        muestra_i_min = muestra_i[np.where(muestra_i >= k_min)]
+          
+        N=muestra_i_min.shape[0]
+      
+        Gamma = 1 + N / np.sum(np.log(muestra_i_min/(k_min-1/2)))
+      
+        #Del ajuste anterior se utiliza la pendiente 'Gamma' y el otro parametro se ajusta   
+        #calculo de estadístico de Kolmogorov-Smirnov
+        #CDFs
+        #CDF Modelo (solo para valores mayores de k_min) 
+        puntos_ajuste = np.arange(k_min, k_max)
+        hurtwitz_f=sp.zeta(Gamma,k_min)
+        pk_ajust2=np.power(puntos_ajuste,-Gamma)/hurtwitz_f
+        CDF_ajuste=np.cumsum(pk_ajust2, axis=0)
+      
+        #CDF datos (solo para observaciones mayores de k_min)
+        hist_lin2=hist_lin[int(k_min):]
+        pk_datos=hist_lin2/np.sum(hist_lin2)
+        CDF_datos=np.cumsum(pk_datos, axis=0)
+          
+        D[ii]=np.max(np.absolute(CDF_ajuste-CDF_datos))
+      
+    #almacenar valor de D_min=======
+    D_opt[jj]=np.min(D)
+  
+    #valores ajustados=======
+    KMIN=posib_kmin[np.where(D == np.min(D))] 
+    muestra_i_min = muestra_i[np.where(muestra_i >= KMIN)]
+    N=muestra_i_min.shape[0]
+    Gamma = 1 + N / np.sum(np.log(muestra_i_min/(KMIN-1/2)))
+  
+    Gamma_est2[jj]=Gamma
+    print("iteracion=" + str(jj))# + " y D=" + str(np.min(D)));
+total_mayores= D_opt[np.where(D_opt >= D_sample)].shape[0]        
+p_value=total_mayores / Lo
+print("---exec time: %s seconds ---" % (time.time() - start_time))
+print("---p_value=%s ---" % p_value)
+#histograma de D
+plt.figure()
+plt.hist(D_opt)
+plt.title("Distribución estadistico KS");
+plt.ylabel("p(D)");
+plt.xlabel("D");
+plt.show();
 
 
 # #=============================================================================
